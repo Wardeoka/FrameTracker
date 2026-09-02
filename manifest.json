@@ -1,0 +1,18 @@
+{
+  "name": "Wilko's Bar Frame Tracker",
+  "short_name": "Wilko's",
+  "description": "Simple frame scoring for pool and snooker at Wilko's Bar.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#050807",
+  "theme_color": "#07100c",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

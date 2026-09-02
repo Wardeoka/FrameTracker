@@ -1,0 +1,1821 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width,
+initial-scale=1.0,
+maximum-scale=1.0,
+user-scalable=no">
+
+<title>Wilko's Bar Frame Tracker</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-512.png">
+
+<meta name="theme-color" content="#07100c">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+<meta name="apple-mobile-web-app-title" content="Wilko's">
+
+
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #050807;
+    color: white;
+    touch-action: none;
+}
+
+
+/* APP */
+
+.app {
+    height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(255,255,255,0.025),
+            transparent 45%
+        ),
+        linear-gradient(
+            180deg,
+            #07100c 0%,
+            #040706 100%
+        );
+}
+
+
+/* HEADER */
+
+.header {
+    height: 64px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-bottom:
+        1px solid rgba(255,255,255,0.08);
+
+    position: relative;
+}
+
+.header::after {
+    content: "";
+
+    position: absolute;
+
+    bottom: -1px;
+
+    width: 180px;
+    height: 2px;
+
+    background: #57d983;
+
+    box-shadow:
+        0 0 14px
+        rgba(87,217,131,0.45);
+}
+
+.brand {
+    text-align: center;
+    line-height: 1;
+}
+
+.brand-name {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 27px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: #f2ead8;
+}
+
+.brand-subtitle {
+    margin-top: 5px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    color: #c9a85c;
+}
+
+
+/* NEW MATCH BUTTON */
+
+.new-match-button {
+    position: absolute;
+
+    right: 18px;
+
+    top: 50%;
+
+    transform:
+        translateY(-50%);
+
+    border:
+        1px solid rgba(255,255,255,0.12);
+
+    border-radius:
+        8px;
+
+    padding:
+        7px 11px;
+
+    background:
+        rgba(255,255,255,0.05);
+
+    color:
+        rgba(255,255,255,0.75);
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    letter-spacing: 1px;
+
+    cursor: pointer;
+
+    touch-action: manipulation;
+}
+
+.new-match-button:active {
+    background:
+        rgba(255,255,255,0.12);
+}
+
+
+/* SCOREBOARD */
+
+.scoreboard {
+    flex: 1;
+
+    display: flex;
+
+    min-height: 0;
+}
+
+.player {
+    flex: 1;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding:
+        26px 18px 18px;
+
+    position: relative;
+
+    overflow: hidden;
+
+    user-select: none;
+
+    -webkit-user-select: none;
+
+    touch-action: none;
+
+    transition:
+        background 0.38s ease,
+        box-shadow 0.38s ease;
+}
+
+.player::before {
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    opacity: 0.16;
+
+    pointer-events: none;
+}
+
+
+/* PLAYER 1 */
+
+.player-one {
+    background:
+        linear-gradient(
+            180deg,
+            rgba(9,57,32,0.72),
+            rgba(5,20,13,0.94)
+        );
+
+    border-right:
+        1px solid rgba(255,255,255,0.08);
+}
+
+.player-one::before {
+    background:
+        radial-gradient(
+            circle at 20% 85%,
+            rgba(72,210,120,0.35),
+            transparent 32%
+        );
+}
+
+
+/* PLAYER 2 */
+
+.player-two {
+    background:
+        linear-gradient(
+            180deg,
+            rgba(8,33,59,0.72),
+            rgba(4,14,25,0.95)
+        );
+}
+
+.player-two::before {
+    background:
+        radial-gradient(
+            circle at 80% 85%,
+            rgba(54,148,255,0.32),
+            transparent 32%
+        );
+}
+
+
+/* SCORE FLASH */
+
+.player-one.active {
+    background:
+        linear-gradient(
+            180deg,
+            rgba(20,107,61,0.95),
+            rgba(6,31,18,0.98)
+        );
+
+    box-shadow:
+        inset 0 0 65px
+        rgba(72,220,128,0.25);
+}
+
+.player-two.active {
+    background:
+        linear-gradient(
+            180deg,
+            rgba(15,75,130,0.95),
+            rgba(5,25,43,0.98)
+        );
+
+    box-shadow:
+        inset 0 0 65px
+        rgba(65,161,255,0.25);
+}
+
+
+/* PLAYER NAMES */
+
+.player-top {
+    width: 100%;
+
+    text-align: center;
+
+    position: relative;
+
+    z-index: 2;
+
+    transform:
+        translateY(45px);
+}
+
+.player-name {
+    display: inline-block;
+
+    margin: 0;
+
+    padding:
+        8px 14px;
+
+    font-size:
+        clamp(24px,3vw,38px);
+
+    font-weight: 800;
+
+    letter-spacing: 3px;
+
+    text-transform: uppercase;
+
+    cursor: pointer;
+
+    user-select: none;
+
+    -webkit-user-select: none;
+
+    touch-action: manipulation;
+}
+
+.player-name:active {
+    transform:
+        scale(0.96);
+}
+
+.player-one .player-name {
+    color: #7ff1a4;
+
+    text-shadow:
+        0 0 18px
+        rgba(93,232,141,0.25);
+}
+
+.player-two .player-name {
+    color: #72b8ff;
+
+    text-shadow:
+        0 0 18px
+        rgba(76,158,255,0.25);
+}
+
+.name-line {
+    width: 86px;
+
+    height: 2px;
+
+    margin:
+        5px auto 0;
+
+    opacity: 0.9;
+}
+
+.player-one .name-line {
+    background: #57d983;
+}
+
+.player-two .name-line {
+    background: #4fa8ff;
+}
+
+
+/* SCORES */
+
+.score-wrap {
+    flex: 1;
+
+    width: 100%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    position: relative;
+
+    z-index: 1;
+}
+
+.score {
+    font-size:
+        clamp(190px,32vw,430px);
+
+    line-height: 0.85;
+
+    font-weight: 800;
+
+    letter-spacing: -12px;
+
+    margin: 0;
+
+    color: #f5f7f6;
+
+    text-shadow:
+        0 2px 0 rgba(0,0,0,0.7),
+        0 0 25px rgba(255,255,255,0.06);
+}
+
+.player-one .score {
+    text-shadow:
+        0 2px 0 rgba(0,0,0,0.7),
+        0 0 30px rgba(82,218,132,0.14);
+}
+
+.player-two .score {
+    text-shadow:
+        0 2px 0 rgba(0,0,0,0.7),
+        0 0 30px rgba(70,158,255,0.14);
+}
+
+
+/* SWIPE INSTRUCTIONS */
+
+.swipe-hint {
+    margin-bottom: 8px;
+
+    position: relative;
+
+    z-index: 1;
+
+    text-align: center;
+}
+
+.arrow {
+    display: block;
+
+    font-size: 28px;
+
+    line-height: 1;
+
+    margin-bottom: 5px;
+}
+
+.player-one .arrow {
+    color: #6be69a;
+}
+
+.player-two .arrow {
+    color: #5bb1ff;
+}
+
+.swipe-main {
+    display: block;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    letter-spacing: 2px;
+}
+
+.swipe-sub {
+    display: block;
+
+    margin-top: 3px;
+
+    font-size: 11px;
+
+    letter-spacing: 2px;
+
+    opacity: 0.7;
+}
+
+
+/* FOOTER */
+
+.footer {
+    height: 52px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 10px;
+
+    border-top:
+        1px solid rgba(255,255,255,0.08);
+
+    background:
+        rgba(0,0,0,0.24);
+
+    font-size: 12px;
+
+    letter-spacing: 2px;
+
+    text-transform: uppercase;
+
+    color:
+        rgba(255,255,255,0.65);
+}
+
+.footer-symbol {
+    color: #62dd8e;
+
+    font-size: 18px;
+}
+
+
+/* POPUP OVERLAY */
+
+.overlay {
+    position: fixed;
+
+    inset: 0;
+
+    display: none;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background:
+        rgba(0,0,0,0.75);
+
+    backdrop-filter:
+        blur(8px);
+
+    -webkit-backdrop-filter:
+        blur(8px);
+
+    z-index: 1000;
+
+    touch-action: manipulation;
+}
+
+.overlay.open {
+    display: flex;
+}
+
+
+/* POPUP */
+
+.popup {
+    width:
+        min(420px,88vw);
+
+    padding:
+        28px;
+
+    border:
+        1px solid rgba(255,255,255,0.13);
+
+    border-radius:
+        18px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #121917,
+            #090d0c
+        );
+
+    box-shadow:
+        0 24px 70px
+        rgba(0,0,0,0.55);
+
+    text-align: center;
+}
+
+.popup h2 {
+    margin:
+        0 0 8px;
+
+    font-size: 24px;
+}
+
+.popup p {
+    margin:
+        0 0 20px;
+
+    color:
+        rgba(255,255,255,0.55);
+
+    font-size: 13px;
+
+    line-height: 1.5;
+
+    letter-spacing: 0.5px;
+}
+
+
+/* NAME INPUT */
+
+.name-input {
+    width: 100%;
+
+    padding:
+        14px 16px;
+
+    border:
+        1px solid rgba(255,255,255,0.15);
+
+    border-radius:
+        10px;
+
+    outline: none;
+
+    background: #060908;
+
+    color: white;
+
+    font-size: 20px;
+
+    font-weight: 700;
+
+    text-align: center;
+
+    text-transform: uppercase;
+}
+
+.name-input:focus {
+    border-color: #64df90;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(100,223,144,0.12);
+}
+
+
+/* POPUP BUTTONS */
+
+.popup-buttons {
+    display: flex;
+
+    gap: 10px;
+
+    margin-top: 18px;
+}
+
+.popup-button {
+    flex: 1;
+
+    border: 0;
+
+    border-radius: 10px;
+
+    padding: 13px;
+
+    font-size: 14px;
+
+    font-weight: 800;
+
+    letter-spacing: 1px;
+
+    cursor: pointer;
+
+    touch-action: manipulation;
+}
+
+.cancel-button {
+    background: #202624;
+
+    color:
+        rgba(255,255,255,0.7);
+}
+
+.save-button,
+.reset-button {
+    background: #55d783;
+
+    color: #061009;
+}
+
+
+/* PHONE + PORTRAIT IPAD */
+
+@media (max-width: 850px) {
+
+    .header {
+        height: 58px;
+    }
+
+   .brand-name {
+    font-size: 23px;
+    letter-spacing: 2.5px;
+}
+
+.brand-subtitle {
+    margin-top: 4px;
+    font-size: 10px;
+    letter-spacing: 3px;
+}
+
+    /*
+    On narrower screens we show
+    only the reset symbol.
+    */
+
+    .new-match-button {
+        right: 8px;
+
+        width: 34px;
+
+        height: 34px;
+
+        padding: 0;
+
+        font-size: 0;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+    }
+
+    .new-match-button::after {
+        content: "↻";
+
+        font-size: 20px;
+    }
+
+    .player {
+        padding:
+            22px 12px 14px;
+    }
+
+    .score {
+        font-size:
+            clamp(135px,34vw,220px);
+
+        letter-spacing: -8px;
+    }
+
+    .player-name {
+        font-size:
+            clamp(20px,4.5vw,28px);
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="app">
+
+
+   <header class="header">
+
+    <div class="brand">
+
+        <div class="brand-name">
+            WILKO'S BAR
+        </div>
+
+        <div class="brand-subtitle">
+            FRAME TRACKER
+        </div>
+
+    </div>
+
+    <button
+        class="new-match-button"
+        id="newMatchButton"
+    >
+        ↻ NEW MATCH
+    </button>
+
+</header>
+
+
+
+    <main class="scoreboard">
+
+
+        <!-- PLAYER 1 -->
+
+        <section
+            class="player player-one"
+            id="player1"
+        >
+
+            <div class="player-top">
+
+                <p
+                    class="player-name"
+                    id="name1"
+                >
+                    Player 1
+                </p>
+
+                <div class="name-line"></div>
+
+            </div>
+
+
+            <div class="score-wrap">
+
+                <div
+                    class="score"
+                    id="score1"
+                >
+                    0
+                </div>
+
+            </div>
+
+
+            <div class="swipe-hint">
+
+                <span class="arrow">
+                    ↑
+                </span>
+
+                <span class="swipe-main">
+                    SWIPE UP
+                </span>
+
+                <span class="swipe-sub">
+                    TO ADD FRAME
+                </span>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- PLAYER 2 -->
+
+        <section
+            class="player player-two"
+            id="player2"
+        >
+
+            <div class="player-top">
+
+                <p
+                    class="player-name"
+                    id="name2"
+                >
+                    Player 2
+                </p>
+
+                <div class="name-line"></div>
+
+            </div>
+
+
+            <div class="score-wrap">
+
+                <div
+                    class="score"
+                    id="score2"
+                >
+                    0
+                </div>
+
+            </div>
+
+
+            <div class="swipe-hint">
+
+                <span class="arrow">
+                    ↑
+                </span>
+
+                <span class="swipe-main">
+                    SWIPE UP
+                </span>
+
+                <span class="swipe-sub">
+                    TO ADD FRAME
+                </span>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+
+    <footer class="footer">
+
+        <span class="footer-symbol">
+            ↓
+        </span>
+
+        Swipe down to undo
+
+    </footer>
+
+
+</div>
+
+
+
+<!-- NAME EDITOR -->
+
+<div
+    class="overlay"
+    id="nameEditorOverlay"
+>
+
+    <div class="popup">
+
+        <h2 id="editorTitle">
+            Player Name
+        </h2>
+
+        <p>
+            Enter the name you want shown on the scoreboard
+        </p>
+
+        <input
+            class="name-input"
+            id="nameInput"
+            type="text"
+            maxlength="14"
+            autocomplete="off"
+        >
+
+        <div class="popup-buttons">
+
+            <button
+                class="popup-button cancel-button"
+                id="cancelNameButton"
+            >
+                CANCEL
+            </button>
+
+            <button
+                class="popup-button save-button"
+                id="saveNameButton"
+            >
+                SAVE
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- NEW MATCH -->
+
+<div
+    class="overlay"
+    id="newMatchOverlay"
+>
+
+    <div class="popup">
+
+        <h2>
+            New Match?
+        </h2>
+
+        <p>
+            This will reset both scores to 0.
+            Player names will be kept.
+        </p>
+
+        <div class="popup-buttons">
+
+            <button
+                class="popup-button cancel-button"
+                id="cancelNewMatchButton"
+            >
+                CANCEL
+            </button>
+
+            <button
+                class="popup-button reset-button"
+                id="confirmNewMatchButton"
+            >
+                NEW MATCH
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+
+/*
+-----------------------------
+STARTING VALUES
+-----------------------------
+*/
+
+let player1Score = 0;
+
+let player2Score = 0;
+
+
+
+/*
+-----------------------------
+PAGE ELEMENTS
+-----------------------------
+*/
+
+const score1 =
+    document.getElementById("score1");
+
+const score2 =
+    document.getElementById("score2");
+
+
+const player1 =
+    document.getElementById("player1");
+
+const player2 =
+    document.getElementById("player2");
+
+
+const name1 =
+    document.getElementById("name1");
+
+const name2 =
+    document.getElementById("name2");
+
+
+
+/*
+-----------------------------
+NAME EDITOR
+-----------------------------
+*/
+
+const nameEditorOverlay =
+    document.getElementById(
+        "nameEditorOverlay"
+    );
+
+const nameInput =
+    document.getElementById(
+        "nameInput"
+    );
+
+const editorTitle =
+    document.getElementById(
+        "editorTitle"
+    );
+
+const saveNameButton =
+    document.getElementById(
+        "saveNameButton"
+    );
+
+const cancelNameButton =
+    document.getElementById(
+        "cancelNameButton"
+    );
+
+
+
+/*
+-----------------------------
+NEW MATCH
+-----------------------------
+*/
+
+const newMatchButton =
+    document.getElementById(
+        "newMatchButton"
+    );
+
+const newMatchOverlay =
+    document.getElementById(
+        "newMatchOverlay"
+    );
+
+const cancelNewMatchButton =
+    document.getElementById(
+        "cancelNewMatchButton"
+    );
+
+const confirmNewMatchButton =
+    document.getElementById(
+        "confirmNewMatchButton"
+    );
+
+
+
+let touchStartY = 0;
+
+let nameBeingEdited = null;
+
+
+
+/*
+=================================
+FRAME TRACKER MEMORY
+=================================
+*/
+
+
+function saveGame() {
+
+    /*
+    Build one little package
+    containing our current game.
+    */
+
+    const gameData = {
+
+        player1Name:
+            name1.textContent.trim(),
+
+        player2Name:
+            name2.textContent.trim(),
+
+        player1Score:
+            player1Score,
+
+        player2Score:
+            player2Score
+
+    };
+
+
+    /*
+    Store that package inside
+    the browser.
+    */
+
+    localStorage.setItem(
+        "frameTrackerGame",
+        JSON.stringify(gameData)
+    );
+
+}
+
+
+
+function loadGame() {
+
+    /*
+    Ask the browser whether it
+    already has a saved game.
+    */
+
+    const savedGame =
+        localStorage.getItem(
+            "frameTrackerGame"
+        );
+
+
+    /*
+    If nothing has ever been
+    saved, simply use Player 1,
+    Player 2 and 0-0.
+    */
+
+    if (!savedGame) {
+
+        return;
+
+    }
+
+
+    /*
+    Turn the stored information
+    back into usable data.
+    */
+
+    const gameData =
+        JSON.parse(savedGame);
+
+
+    /*
+    Restore player names.
+    */
+
+    name1.textContent =
+        gameData.player1Name ||
+        "Player 1";
+
+
+    name2.textContent =
+        gameData.player2Name ||
+        "Player 2";
+
+
+    /*
+    Restore scores.
+    */
+
+    player1Score =
+        Number(
+            gameData.player1Score
+        ) || 0;
+
+
+    player2Score =
+        Number(
+            gameData.player2Score
+        ) || 0;
+
+
+    /*
+    Put the restored scores
+    onto the screen.
+    */
+
+    score1.textContent =
+        player1Score;
+
+
+    score2.textContent =
+        player2Score;
+
+}
+
+
+
+/*
+-----------------------------
+FLASH EFFECT
+-----------------------------
+*/
+
+function flashPlayer(
+    playerElement
+) {
+
+    playerElement
+        .classList
+        .add("active");
+
+
+    setTimeout(
+        function() {
+
+            playerElement
+                .classList
+                .remove("active");
+
+        },
+
+        380
+    );
+
+}
+
+
+
+/*
+-----------------------------
+OPEN NAME EDITOR
+-----------------------------
+*/
+
+function openNameEditor(
+    nameElement,
+    playerNumber
+) {
+
+    nameBeingEdited =
+        nameElement;
+
+
+    editorTitle.textContent =
+        "Player " +
+        playerNumber +
+        " Name";
+
+
+    nameInput.value =
+        nameElement
+            .textContent
+            .trim();
+
+
+    nameEditorOverlay
+        .classList
+        .add("open");
+
+
+    setTimeout(
+        function() {
+
+            nameInput.focus();
+
+            nameInput.select();
+
+        },
+
+        100
+    );
+
+}
+
+
+
+/*
+-----------------------------
+CLOSE NAME EDITOR
+-----------------------------
+*/
+
+function closeNameEditor() {
+
+    nameEditorOverlay
+        .classList
+        .remove("open");
+
+
+    nameInput.blur();
+
+
+    nameBeingEdited =
+        null;
+
+}
+
+
+
+/*
+-----------------------------
+SAVE PLAYER NAME
+-----------------------------
+*/
+
+function savePlayerName() {
+
+    const newName =
+        nameInput
+            .value
+            .trim();
+
+
+    if (
+        nameBeingEdited &&
+        newName !== ""
+    ) {
+
+        nameBeingEdited
+            .textContent =
+            newName;
+
+
+        /*
+        Remember the new name.
+        */
+
+        saveGame();
+
+    }
+
+
+    closeNameEditor();
+
+}
+
+
+
+/*
+-----------------------------
+PLAYER NAME TOUCH
+-----------------------------
+*/
+
+name1.addEventListener(
+    "pointerup",
+    function(event) {
+
+        event.preventDefault();
+
+        event.stopPropagation();
+
+
+        openNameEditor(
+            name1,
+            1
+        );
+
+    }
+);
+
+
+name2.addEventListener(
+    "pointerup",
+    function(event) {
+
+        event.preventDefault();
+
+        event.stopPropagation();
+
+
+        openNameEditor(
+            name2,
+            2
+        );
+
+    }
+);
+
+
+name1.addEventListener(
+    "pointerdown",
+    function(event) {
+
+        event.stopPropagation();
+
+    }
+);
+
+
+name2.addEventListener(
+    "pointerdown",
+    function(event) {
+
+        event.stopPropagation();
+
+    }
+);
+
+
+
+/*
+-----------------------------
+NAME EDITOR BUTTONS
+-----------------------------
+*/
+
+saveNameButton.addEventListener(
+    "click",
+    savePlayerName
+);
+
+
+cancelNameButton.addEventListener(
+    "click",
+    closeNameEditor
+);
+
+
+nameInput.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (
+            event.key === "Enter"
+        ) {
+
+            savePlayerName();
+
+        }
+
+    }
+);
+
+
+
+/*
+=================================
+NEW MATCH
+=================================
+*/
+
+newMatchButton.addEventListener(
+    "click",
+    function() {
+
+        newMatchOverlay
+            .classList
+            .add("open");
+
+    }
+);
+
+
+cancelNewMatchButton.addEventListener(
+    "click",
+    function() {
+
+        newMatchOverlay
+            .classList
+            .remove("open");
+
+    }
+);
+
+
+confirmNewMatchButton.addEventListener(
+    "click",
+    function() {
+
+        player1Score = 0;
+
+        player2Score = 0;
+
+
+        score1.textContent = 0;
+
+        score2.textContent = 0;
+
+
+        /*
+        Remember the reset score.
+        Names stay exactly as
+        they currently are.
+        */
+
+        saveGame();
+
+
+        newMatchOverlay
+            .classList
+            .remove("open");
+
+    }
+);
+/*
+/*
+=================================
+POOL BALL SOUND
+=================================
+*/
+
+const scoreSound = new Audio(
+    "./audio/score.mp3"
+);
+
+scoreSound.preload = "auto";
+
+
+function playPoolBallSound() {
+
+    /*
+    Jump back to the beginning
+    if the sound was already
+    playing.
+    */
+
+    scoreSound.currentTime = 0;
+
+    scoreSound.play().catch(
+        function(error) {
+
+            console.log(
+                "Sound could not play:",
+                error
+            );
+
+        }
+    );
+
+}
+
+/*
+=================================
+SWIPE CONTROLS
+=================================
+*/
+
+function addSwipeControls(
+    playerElement,
+    playerNumber
+) {
+
+
+    playerElement.addEventListener(
+        "touchstart",
+        function(event) {
+
+
+            if (
+                event.target.closest(
+                    ".player-name"
+                )
+            ) {
+
+                return;
+
+            }
+
+
+            event.preventDefault();
+
+
+            touchStartY =
+                event
+                    .changedTouches[0]
+                    .screenY;
+
+        },
+
+        { passive: false }
+    );
+
+
+
+    playerElement.addEventListener(
+        "touchend",
+        function(event) {
+
+
+            if (
+                event.target.closest(
+                    ".player-name"
+                )
+            ) {
+
+                return;
+
+            }
+
+
+            event.preventDefault();
+
+
+            const touchEndY =
+                event
+                    .changedTouches[0]
+                    .screenY;
+
+
+            const swipeDistance =
+                touchStartY -
+                touchEndY;
+
+
+            if (
+                Math.abs(
+                    swipeDistance
+                ) < 25
+            ) {
+
+                return;
+
+            }
+
+
+
+            /*
+            SWIPE UP
+            */
+
+            if (
+                swipeDistance > 0
+            ) {
+
+
+                if (
+                    playerNumber === 1
+                ) {
+
+                    player1Score++;
+
+                    score1.textContent =
+                        player1Score;
+
+                }
+
+
+                if (
+                    playerNumber === 2
+                ) {
+
+                    player2Score++;
+
+                    score2.textContent =
+                        player2Score;
+
+                }
+
+
+                /*
+Save immediately after
+the score changes.
+*/
+
+saveGame();
+
+
+/*
+Play score-up sound.
+*/
+
+playPoolBallSound();
+
+
+flashPlayer(
+    playerElement
+);
+
+            }
+
+
+
+            /*
+            SWIPE DOWN
+            */
+
+            if (
+                swipeDistance < 0
+            ) {
+
+
+                if (
+                    playerNumber === 1 &&
+                    player1Score > 0
+                ) {
+
+                    player1Score--;
+
+                    score1.textContent =
+                        player1Score;
+
+
+                    saveGame();
+
+
+                    flashPlayer(
+                        playerElement
+                    );
+
+                }
+
+
+                if (
+                    playerNumber === 2 &&
+                    player2Score > 0
+                ) {
+
+                    player2Score--;
+
+                    score2.textContent =
+                        player2Score;
+
+
+                    saveGame();
+
+
+
+                    flashPlayer(
+                        playerElement
+                    );
+
+                }
+
+            }
+
+        }, 
+
+        { passive: false }
+    );
+
+}
+
+
+
+/*
+TURN ON SWIPE CONTROLS
+*/
+
+addSwipeControls(
+    player1,
+    1
+);
+
+
+addSwipeControls(
+    player2,
+    2
+);
+
+
+
+/*
+=================================
+LOAD SAVED MATCH
+=================================
+
+This happens automatically
+whenever FrameTracker opens.
+*/
+
+loadGame();
+if ("serviceWorker" in navigator) {
+
+    window.addEventListener("load", function() {
+
+        navigator.serviceWorker.register("./service-worker.js");
+
+    });
+
+}
+
+
+</script>
+
+
+</body>
+
+</html>

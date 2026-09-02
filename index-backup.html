@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width,
+                   initial-scale=1.0,
+                   maximum-scale=1.0,
+                   user-scalable=no">
+
+    <title>FrameTracker</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #050807;
+            color: white;
+            touch-action: none;
+        }
+
+        .app {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+
+            background:
+                radial-gradient(
+                    circle at center,
+                    rgba(255,255,255,0.025),
+                    transparent 45%
+                ),
+                linear-gradient(
+                    180deg,
+                    #07100c 0%,
+                    #040706 100%
+                );
+        }
+
+
+        /* HEADER */
+
+        .header {
+            height: 64px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-bottom:
+                1px solid rgba(255,255,255,0.08);
+
+            position: relative;
+        }
+
+        .header::after {
+            content: "";
+
+            position: absolute;
+
+            bottom: -1px;
+
+            width: 180px;
+            height: 2px;
+
+            background: #57d983;
+
+            box-shadow:
+                0 0 14px
+                rgba(87,217,131,0.45);
+        }
+
+        .header h1 {
+            margin: 0;
+
+            font-size: 22px;
+
+            font-weight: 700;
+
+            letter-spacing: 4px;
+        }
+
+
+        /* SCOREBOARD */
+
+        .scoreboard {
+            flex: 1;
+
+            display: flex;
+
+            min-height: 0;
+        }
+
+        .player {
+            flex: 1;
+
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding:
+                26px 18px 18px;
+
+            position: relative;
+
+            overflow: hidden;
+
+            user-select: none;
+            -webkit-user-select: none;
+
+            touch-action: none;
+
+            transition:
+                background 0.38s ease,
+                box-shadow 0.38s ease;
+        }
+
+        .player::before {
+            content: "";
+
+            position: absolute;
+
+            inset: 0;
+
+            opacity: 0.16;
+
+            pointer-events: none;
+        }
+
+
+        /* PLAYER 1 */
+
+        .player-one {
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(9,57,32,0.72),
+                    rgba(5,20,13,0.94)
+                );
+
+            border-right:
+                1px solid rgba(255,255,255,0.08);
+        }
+
+        .player-one::before {
+            background:
+                radial-gradient(
+                    circle at 20% 85%,
+                    rgba(72,210,120,0.35),
+                    transparent 32%
+                );
+        }
+
+
+        /* PLAYER 2 */
+
+        .player-two {
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(8,33,59,0.72),
+                    rgba(4,14,25,0.95)
+                );
+        }
+
+        .player-two::before {
+            background:
+                radial-gradient(
+                    circle at 80% 85%,
+                    rgba(54,148,255,0.32),
+                    transparent 32%
+                );
+        }
+
+
+        /* CONFIRMATION FLASH */
+
+        .player-one.active {
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(20,107,61,0.95),
+                    rgba(6,31,18,0.98)
+                );
+
+            box-shadow:
+                inset 0 0 65px
+                rgba(72,220,128,0.25);
+        }
+
+        .player-two.active {
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(15,75,130,0.95),
+                    rgba(5,25,43,0.98)
+                );
+
+            box-shadow:
+                inset 0 0 65px
+                rgba(65,161,255,0.25);
+        }
+
+
+        /* PLAYER NAMES */
+
+        .player-top {
+            width: 100%;
+
+            text-align: center;
+
+            position: relative;
+
+            z-index: 2;
+
+            transform:
+                translateY(45px);
+        }
+
+        .player-name {
+            display: inline-block;
+
+            margin: 0;
+
+            padding:
+                8px 14px;
+
+            font-size:
+                clamp(24px,3vw,38px);
+
+            font-weight: 800;
+
+            letter-spacing: 3px;
+
+            text-transform: uppercase;
+
+            cursor: pointer;
+
+            user-select: none;
+            -webkit-user-select: none;
+
+            touch-action: manipulation;
+        }
+
+        .player-name:active {
+            transform:
+                scale(0.96);
+        }
+
+        .player-one .player-name {
+            color: #7ff1a4;
+
+            text-shadow:
+                0 0 18px
+                rgba(93,232,141,0.25);
+        }
+
+        .player-two .player-name {
+            color: #72b8ff;
+
+            text-shadow:
+                0 0 18px
+                rgba(76,158,255,0.25);
+        }
+
+        .name-line {
+            width: 86px;
+
+            height: 2px;
+
+            margin:
+                5px auto 0;
+
+            opacity: 0.9;
+        }
+
+        .player-one .name-line {
+            background: #57d983;
+        }
+
+        .player-two .name-line {
+            background: #4fa8ff;
+        }
+
+
+        /* SCORES */
+
+        .score-wrap {
+            flex: 1;
+
+            width: 100%;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            position: relative;
+
+            z-index: 1;
+        }
+
+        .score {
+            font-size:
+                clamp(190px,32vw,430px);
+
+            line-height: 0.85;
+
+            font-weight: 800;
+
+            letter-spacing: -12px;
+
+            margin: 0;
+
+            color: #f5f7f6;
+
+            text-shadow:
+                0 2px 0 rgba(0,0,0,0.7),
+                0 0 25px rgba(255,255,255,0.06);
+        }
+
+        .player-one .score {
+            text-shadow:
+                0 2px 0 rgba(0,0,0,0.7),
+                0 0 30px rgba(82,218,132,0.14);
+        }
+
+        .player-two .score {
+            text-shadow:
+                0 2px 0 rgba(0,0,0,0.7),
+                0 0 30px rgba(70,158,255,0.14);
+        }
+
+
+        /* SWIPE HINT */
+
+        .swipe-hint {
+            margin-bottom: 8px;
+
+            position: relative;
+
+            z-index: 1;
+
+            text-align: center;
+        }
+
+        .arrow {
+            display: block;
+
+            font-size: 28px;
+
+            line-height: 1;
+
+            margin-bottom: 5px;
+        }
+
+        .player-one .arrow {
+            color: #6be69a;
+        }
+
+        .player-two .arrow {
+            color: #5bb1ff;
+        }
+
+        .swipe-main {
+            display: block;
+
+            font-size: 13px;
+
+            font-weight: 700;
+
+            letter-spacing: 2px;
+        }
+
+        .swipe-sub {
+            display: block;
+
+            margin-top: 3px;
+
+            font-size: 11px;
+
+            letter-spacing: 2px;
+
+            opacity: 0.7;
+        }
+
+
+        /* FOOTER */
+
+        .footer {
+            height: 52px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            gap: 10px;
+
+            border-top:
+                1px solid rgba(255,255,255,0.08);
+
+            background:
+                rgba(0,0,0,0.24);
+
+            font-size: 12px;
+
+            letter-spacing: 2px;
+
+            text-transform: uppercase;
+
+            color:
+                rgba(255,255,255,0.65);
+        }
+
+        .footer-symbol {
+            color: #62dd8e;
+
+            font-size: 18px;
+        }
+
+
+        /* NAME EDITOR BACKGROUND */
+
+        .name-editor-overlay {
+            position: fixed;
+
+            inset: 0;
+
+            display: none;
+
+            align-items: center;
+
+            justify-content: center;
+
+            background:
+                rgba(0,0,0,0.75);
+
+            backdrop-filter:
+                blur(8px);
+
+            -webkit-backdrop-filter:
+                blur(8px);
+
+            z-index: 1000;
+
+            touch-action: manipulation;
+        }
+
+        .name-editor-overlay.open {
+            display: flex;
+        }
+
+
+        /* NAME EDITOR BOX */
+
+        .name-editor {
+            width:
+                min(420px, 88vw);
+
+            padding:
+                28px;
+
+            border:
+                1px solid rgba(255,255,255,0.13);
+
+            border-radius:
+                18px;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    #121917,
+                    #090d0c
+                );
+
+            box-shadow:
+                0 24px 70px
+                rgba(0,0,0,0.55);
+
+            text-align: center;
+        }
+
+        .name-editor h2 {
+            margin:
+                0 0 8px;
+
+            font-size: 24px;
+        }
+
+        .name-editor p {
+            margin:
+                0 0 20px;
+
+            color:
+                rgba(255,255,255,0.55);
+
+            font-size: 13px;
+
+            letter-spacing: 1px;
+        }
+
+        .name-input {
+            width: 100%;
+
+            padding:
+                14px 16px;
+
+            border:
+                1px solid rgba(255,255,255,0.15);
+
+            border-radius:
+                10px;
+
+            outline: none;
+
+            background:
+                #060908;
+
+            color: white;
+
+            font-size: 20px;
+
+            font-weight: 700;
+
+            text-align: center;
+
+            text-transform: uppercase;
+        }
+
+        .name-input:focus {
+            border-color:
+                #64df90;
+
+            box-shadow:
+                0 0 0 3px
+                rgba(100,223,144,0.12);
+        }
+
+        .editor-buttons {
+            display: flex;
+
+            gap: 10px;
+
+            margin-top: 18px;
+        }
+
+        .editor-button {
+            flex: 1;
+
+            border: 0;
+
+            border-radius:
+                10px;
+
+            padding:
+                13px;
+
+            font-size: 14px;
+
+            font-weight: 800;
+
+            letter-spacing: 1px;
+        }
+
+        .cancel-button {
+            background:
+                #202624;
+
+            color:
+                rgba(255,255,255,0.7);
+        }
+
+        .save-button {
+            background:
+                #55d783;
+
+            color:
+                #061009;
+        }
+
+
+        /* SMALL SCREEN */
+
+        @media (max-width: 700px) {
+
+            .header {
+                height: 58px;
+            }
+
+            .header h1 {
+                font-size: 18px;
+
+                letter-spacing: 3px;
+            }
+
+            .player {
+                padding:
+                    22px 12px 14px;
+            }
+
+            .score {
+                font-size:
+                    clamp(135px,34vw,220px);
+
+                letter-spacing: -8px;
+            }
+
+            .player-name {
+                font-size:
+                    clamp(20px,4.5vw,28px);
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <div class="app">
+
+
+        <header class="header">
+
+            <h1>
+                FRAME TRACKER
+            </h1>
+
+        </header>
+
+
+
+        <main class="scoreboard">
+
+
+            <section
+                class="player player-one"
+                id="player1"
+            >
+
+                <div class="player-top">
+
+                    <p
+                        class="player-name"
+                        id="name1"
+                    >
+                        Player 1
+                    </p>
+
+                    <div class="name-line"></div>
+
+                </div>
+
+
+                <div class="score-wrap">
+
+                    <div
+                        class="score"
+                        id="score1"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+
+                <div class="swipe-hint">
+
+                    <span class="arrow">
+                        ↑
+                    </span>
+
+                    <span class="swipe-main">
+                        SWIPE UP
+                    </span>
+
+                    <span class="swipe-sub">
+                        TO ADD FRAME
+                    </span>
+
+                </div>
+
+            </section>
+
+
+
+            <section
+                class="player player-two"
+                id="player2"
+            >
+
+                <div class="player-top">
+
+                    <p
+                        class="player-name"
+                        id="name2"
+                    >
+                        Player 2
+                    </p>
+
+                    <div class="name-line"></div>
+
+                </div>
+
+
+                <div class="score-wrap">
+
+                    <div
+                        class="score"
+                        id="score2"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+
+                <div class="swipe-hint">
+
+                    <span class="arrow">
+                        ↑
+                    </span>
+
+                    <span class="swipe-main">
+                        SWIPE UP
+                    </span>
+
+                    <span class="swipe-sub">
+                        TO ADD FRAME
+                    </span>
+
+                </div>
+
+            </section>
+
+
+        </main>
+
+
+
+        <footer class="footer">
+
+            <span class="footer-symbol">
+                ↓
+            </span>
+
+            Swipe down to undo
+
+        </footer>
+
+
+    </div>
+
+
+
+    <!-- PLAYER NAME EDITOR -->
+
+    <div
+        class="name-editor-overlay"
+        id="nameEditorOverlay"
+    >
+
+        <div class="name-editor">
+
+            <h2 id="editorTitle">
+                Player Name
+            </h2>
+
+            <p>
+                Enter the name you want shown on the scoreboard
+            </p>
+
+            <input
+                class="name-input"
+                id="nameInput"
+                type="text"
+                maxlength="14"
+                autocomplete="off"
+            >
+
+            <div class="editor-buttons">
+
+                <button
+                    class="editor-button cancel-button"
+                    id="cancelNameButton"
+                >
+                    CANCEL
+                </button>
+
+                <button
+                    class="editor-button save-button"
+                    id="saveNameButton"
+                >
+                    SAVE
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <script>
+
+        let player1Score = 0;
+        let player2Score = 0;
+
+
+        const score1 =
+            document.getElementById("score1");
+
+        const score2 =
+            document.getElementById("score2");
+
+
+        const player1 =
+            document.getElementById("player1");
+
+        const player2 =
+            document.getElementById("player2");
+
+
+        const name1 =
+            document.getElementById("name1");
+
+        const name2 =
+            document.getElementById("name2");
+
+
+        const nameEditorOverlay =
+            document.getElementById(
+                "nameEditorOverlay"
+            );
+
+        const nameInput =
+            document.getElementById(
+                "nameInput"
+            );
+
+        const editorTitle =
+            document.getElementById(
+                "editorTitle"
+            );
+
+        const saveNameButton =
+            document.getElementById(
+                "saveNameButton"
+            );
+
+        const cancelNameButton =
+            document.getElementById(
+                "cancelNameButton"
+            );
+
+
+        let touchStartY = 0;
+
+        let nameBeingEdited = null;
+
+
+
+        function flashPlayer(
+            playerElement
+        ) {
+
+            playerElement
+                .classList
+                .add("active");
+
+
+            setTimeout(
+                function() {
+
+                    playerElement
+                        .classList
+                        .remove("active");
+
+                },
+
+                380
+            );
+
+        }
+
+
+
+        function openNameEditor(
+            nameElement,
+            playerNumber
+        ) {
+
+            nameBeingEdited =
+                nameElement;
+
+
+            editorTitle.textContent =
+                "Player " +
+                playerNumber +
+                " Name";
+
+
+            nameInput.value =
+                nameElement
+                    .textContent
+                    .trim();
+
+
+            nameEditorOverlay
+                .classList
+                .add("open");
+
+
+            setTimeout(
+                function() {
+
+                    nameInput.focus();
+
+                    nameInput.select();
+
+                },
+
+                100
+            );
+
+        }
+
+
+
+        function closeNameEditor() {
+
+            nameEditorOverlay
+                .classList
+                .remove("open");
+
+
+            nameInput.blur();
+
+
+            nameBeingEdited =
+                null;
+
+        }
+
+
+
+        function savePlayerName() {
+
+            const newName =
+                nameInput
+                    .value
+                    .trim();
+
+
+            if (
+                nameBeingEdited &&
+                newName !== ""
+            ) {
+
+                nameBeingEdited
+                    .textContent =
+                    newName;
+
+            }
+
+
+            closeNameEditor();
+
+        }
+
+
+
+        /*
+        PLAYER NAME TAPS
+
+        Pointer events work for:
+        mouse
+        touchscreen
+        Apple Pencil
+        */
+
+        name1.addEventListener(
+            "pointerup",
+            function(event) {
+
+                event.preventDefault();
+
+                event.stopPropagation();
+
+
+                openNameEditor(
+                    name1,
+                    1
+                );
+
+            }
+        );
+
+
+        name2.addEventListener(
+            "pointerup",
+            function(event) {
+
+                event.preventDefault();
+
+                event.stopPropagation();
+
+
+                openNameEditor(
+                    name2,
+                    2
+                );
+
+            }
+        );
+
+
+
+        name1.addEventListener(
+            "pointerdown",
+            function(event) {
+
+                event.stopPropagation();
+
+            }
+        );
+
+
+        name2.addEventListener(
+            "pointerdown",
+            function(event) {
+
+                event.stopPropagation();
+
+            }
+        );
+
+
+
+        /*
+        NAME EDITOR BUTTONS
+        */
+
+        saveNameButton.addEventListener(
+            "click",
+            savePlayerName
+        );
+
+
+        cancelNameButton.addEventListener(
+            "click",
+            closeNameEditor
+        );
+
+
+        nameInput.addEventListener(
+            "keydown",
+            function(event) {
+
+                if (
+                    event.key === "Enter"
+                ) {
+
+                    savePlayerName();
+
+                }
+
+            }
+        );
+
+
+
+        /*
+        SWIPE CONTROLS
+        */
+
+        function addSwipeControls(
+            playerElement,
+            playerNumber
+        ) {
+
+
+            playerElement.addEventListener(
+                "touchstart",
+                function(event) {
+
+                    /*
+                    Do nothing if we're
+                    touching the name.
+                    */
+
+                    if (
+                        event.target.closest(
+                            ".player-name"
+                        )
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    event.preventDefault();
+
+
+                    touchStartY =
+                        event
+                            .changedTouches[0]
+                            .screenY;
+
+                },
+
+                { passive: false }
+            );
+
+
+
+            playerElement.addEventListener(
+                "touchend",
+                function(event) {
+
+
+                    if (
+                        event.target.closest(
+                            ".player-name"
+                        )
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    event.preventDefault();
+
+
+                    const touchEndY =
+                        event
+                            .changedTouches[0]
+                            .screenY;
+
+
+                    const swipeDistance =
+                        touchStartY -
+                        touchEndY;
+
+
+                    if (
+                        Math.abs(
+                            swipeDistance
+                        ) < 25
+                    ) {
+
+                        return;
+
+                    }
+
+
+
+                    /* SWIPE UP */
+
+                    if (
+                        swipeDistance > 0
+                    ) {
+
+
+                        if (
+                            playerNumber === 1
+                        ) {
+
+                            player1Score++;
+
+                            score1.textContent =
+                                player1Score;
+
+                        }
+
+
+                        if (
+                            playerNumber === 2
+                        ) {
+
+                            player2Score++;
+
+                            score2.textContent =
+                                player2Score;
+
+                        }
+
+
+                        flashPlayer(
+                            playerElement
+                        );
+
+                    }
+
+
+
+                    /* SWIPE DOWN */
+
+                    if (
+                        swipeDistance < 0
+                    ) {
+
+
+                        if (
+                            playerNumber === 1 &&
+                            player1Score > 0
+                        ) {
+
+                            player1Score--;
+
+                            score1.textContent =
+                                player1Score;
+
+                            flashPlayer(
+                                playerElement
+                            );
+
+                        }
+
+
+                        if (
+                            playerNumber === 2 &&
+                            player2Score > 0
+                        ) {
+
+                            player2Score--;
+
+                            score2.textContent =
+                                player2Score;
+
+                            flashPlayer(
+                                playerElement
+                            );
+
+                        }
+
+                    }
+
+                },
+
+                { passive: false }
+            );
+
+        }
+
+
+
+        addSwipeControls(
+            player1,
+            1
+        );
+
+
+        addSwipeControls(
+            player2,
+            2
+        );
+
+
+    </script>
+
+
+</body>
+
+</html>
