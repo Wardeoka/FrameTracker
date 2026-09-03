@@ -1543,6 +1543,7 @@ confirmNewMatchButton.addEventListener(
 );
 /*
 /*
+/*
 =================================
 POOL BALL SOUND
 =================================
@@ -1582,6 +1583,41 @@ function playPoolBallSound() {
 }
 
 
+let soundUnlocked = false;
+
+
+function unlockPoolBallSound() {
+
+    if (soundUnlocked) {
+        return;
+    }
+
+    scoreSound.muted = true;
+
+    scoreSound.play()
+        .then(function() {
+
+            scoreSound.pause();
+            scoreSound.currentTime = 0;
+            scoreSound.muted = false;
+
+            soundUnlocked = true;
+
+        })
+        .catch(function(error) {
+
+            scoreSound.muted = false;
+
+            console.log(
+                "Sound unlock failed:",
+                error
+            );
+
+        });
+
+}
+
+
 /*
 Refresh the audio object when
 the app becomes active again.
@@ -1596,6 +1632,8 @@ document.addEventListener(
             scoreSound =
                 createScoreSound();
 
+            soundUnlocked = false;
+
         }
 
     }
@@ -1608,6 +1646,8 @@ window.addEventListener(
 
         scoreSound =
             createScoreSound();
+
+        soundUnlocked = false;
 
     }
 );
@@ -1641,6 +1681,8 @@ function addSwipeControls(
 
 
             event.preventDefault();
+
+            unlockPoolBallSound();
 
 
             touchStartY =

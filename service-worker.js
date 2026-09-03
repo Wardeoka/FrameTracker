@@ -1,4 +1,4 @@
-const CACHE_NAME = "frame-tracker-v5";
+const CACHE_NAME = "frame-tracker-v6";
 
 const FILES_TO_CACHE = [
     "./",
