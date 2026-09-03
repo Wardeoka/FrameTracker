@@ -1,4 +1,4 @@
-const CACHE_NAME = "frame-tracker-v4";
+const CACHE_NAME = "frame-tracker-v5";
 
 const FILES_TO_CACHE = [
     "./",
@@ -7,9 +7,16 @@ const FILES_TO_CACHE = [
     "./icons/apple-touch-icon.png",
     "./icons/icon-192.png",
     "./icons/icon-512.png",
-    "./audio/score.mp3"
-    "./images/background.png",
+    "./audio/score.mp3",
+    "./images/background.png"
 ];
+
+
+/*
+=================================
+INSTALL
+=================================
+*/
 
 self.addEventListener("install", function(event) {
 
@@ -18,7 +25,9 @@ self.addEventListener("install", function(event) {
         caches.open(CACHE_NAME)
             .then(function(cache) {
 
-                return cache.addAll(FILES_TO_CACHE);
+                return cache.addAll(
+                    FILES_TO_CACHE
+                );
 
             })
 
@@ -27,6 +36,60 @@ self.addEventListener("install", function(event) {
 });
 
 
+/*
+=================================
+ACTIVATE
+=================================
+
+Delete older versions of the
+FrameTracker cache.
+*/
+
+self.addEventListener("activate", function(event) {
+
+    event.waitUntil(
+
+        caches.keys()
+            .then(function(cacheNames) {
+
+                return Promise.all(
+
+                    cacheNames
+                        .filter(
+                            function(cacheName) {
+
+                                return (
+                                    cacheName !==
+                                    CACHE_NAME
+                                );
+
+                            }
+                        )
+                        .map(
+                            function(cacheName) {
+
+                                return caches.delete(
+                                    cacheName
+                                );
+
+                            }
+                        )
+
+                );
+
+            })
+
+    );
+
+});
+
+
+/*
+=================================
+FETCH
+=================================
+*/
+
 self.addEventListener("fetch", function(event) {
 
     event.respondWith(
@@ -34,7 +97,10 @@ self.addEventListener("fetch", function(event) {
         caches.match(event.request)
             .then(function(response) {
 
-                return response || fetch(event.request);
+                return (
+                    response ||
+                    fetch(event.request)
+                );
 
             })
 
