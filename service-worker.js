@@ -1,4 +1,4 @@
-const CACHE_NAME = "frame-tracker-v6";
+const CACHE_NAME = "frame-tracker-v7";
 
 const FILES_TO_CACHE = [
     "./",
@@ -20,17 +20,15 @@ INSTALL
 
 self.addEventListener("install", function(event) {
 
-    event.waitUntil(
+    self.skipWaiting();
 
+    event.waitUntil(
         caches.open(CACHE_NAME)
             .then(function(cache) {
-
                 return cache.addAll(
                     FILES_TO_CACHE
                 );
-
             })
-
     );
 
 });
@@ -40,9 +38,6 @@ self.addEventListener("install", function(event) {
 =================================
 ACTIVATE
 =================================
-
-Delete older versions of the
-FrameTracker cache.
 */
 
 self.addEventListener("activate", function(event) {
@@ -55,27 +50,19 @@ self.addEventListener("activate", function(event) {
                 return Promise.all(
 
                     cacheNames
-                        .filter(
-                            function(cacheName) {
-
-                                return (
-                                    cacheName !==
-                                    CACHE_NAME
-                                );
-
-                            }
-                        )
-                        .map(
-                            function(cacheName) {
-
-                                return caches.delete(
-                                    cacheName
-                                );
-
-                            }
-                        )
+                        .filter(function(cacheName) {
+                            return cacheName !== CACHE_NAME;
+                        })
+                        .map(function(cacheName) {
+                            return caches.delete(cacheName);
+                        })
 
                 );
+
+            })
+            .then(function() {
+
+                return self.clients.claim();
 
             })
 
@@ -91,6 +78,56 @@ FETCH
 */
 
 self.addEventListener("fetch", function(event) {
+
+    /*
+    For actual pages, try the internet
+    first so updates appear immediately.
+    */
+
+    if (
+        event.request.mode === "navigate"
+    ) {
+
+        event.respondWith(
+
+            fetch(event.request)
+                .then(function(response) {
+
+                    const copy =
+                        response.clone();
+
+                    caches.open(CACHE_NAME)
+                        .then(function(cache) {
+
+                            cache.put(
+                                event.request,
+                                copy
+                            );
+
+                        });
+
+                    return response;
+
+                })
+                .catch(function() {
+
+                    return caches.match(
+                        "./index.html"
+                    );
+
+                })
+
+        );
+
+        return;
+
+    }
+
+
+    /*
+    For images, audio, icons etc.
+    use the cached copy first.
+    */
 
     event.respondWith(
 
